@@ -21,7 +21,7 @@ public class PlayerController : MonoBehaviour {
 
 	public bool armaEquipada = false;					 // Variável booleana, verdadeiro se uma arma está equipada, falso se nenhuma arma está equipada
 	public GameObject tiro1Prefab;                       // Referência ao prefab do projétil que será disparado pelo Player com a arma 1 
-	private AudioSource audioSrc;                        // Usado para guardar uma referência para o componente Autio Source do Player
+	private AudioSource audioSrc;							// Usado para guardar uma referência para o componente Autio Source do Player
 	public AudioClip shootSound;                         // Clipe de Audio do som do disparo da arma
 
 	private float translationY;							// Recebe o movimento vertical do Player
