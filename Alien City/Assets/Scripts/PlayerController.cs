@@ -19,13 +19,17 @@ public class PlayerController : MonoBehaviour {
 	public Image vida;
 	private MensagemControle MC;
 
-	public bool armaEquipada = false;					 // Variável booleana, verdadeiro se uma arma está equipada, falso se nenhuma arma está equipada
+	public int armaSelecionada;	                         // Variável que guarda qual arma está selecionada pelo jogador
 	public GameObject tiro1Prefab;                       // Referência ao prefab do projétil que será disparado pelo Player com a arma 1 
-	private AudioSource audioSrc;							// Usado para guardar uma referência para o componente Autio Source do Player
+	public GameObject tiro2Prefab;                       // Referência ao prefab do projétil que será disparado pelo Player com a arma 2 
+	private AudioSource audioSrc;						 // Usado para guardar uma referência para o componente Autio Source do Player
 	public AudioClip shootSound;                         // Clipe de Audio do som do disparo da arma
+	
+	public Image armaUIImagem;							// Referência para a imagem do HUD que representa a arma selecionada
 
-	private float translationY;							// Recebe o movimento vertical do Player
-	private float translationX;							// Recebe o movimento horizontal do Player
+
+	private float translationY;							 // Recebe o movimento vertical do Player
+	private float translationX;							 // Recebe o movimento horizontal do Player
 
 
 	void Start () {
@@ -33,6 +37,10 @@ public class PlayerController : MonoBehaviour {
 		rb2d = GetComponent<Rigidbody2D> ();
 		audioSrc = GetComponent<AudioSource>();
 		tocaChao = true;
+		armaSelecionada = 0;
+		armaUIImagem = GameObject.Find("ArmaUI").GetComponent<Image>();
+		armaUIImagem.color = Color.clear;
+
 
 		GameObject mensagemControleObject = GameObject.FindWithTag ("MensagemControle");
 		if (mensagemControleObject != null) {
@@ -43,23 +51,16 @@ public class PlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void Update()
 	{
-		// Ao apertar Ctrl (Fire1), se estiver parado e tocando no chão, equipa arma
+		// Ao apertar Ctrl (Fire1), se estiver parado e tocando no chão, troca a arma
 		if (Input.GetButtonDown("Fire1"))
 		{
-			if (armaEquipada == false)
-			{
-				armaEquipada = true;
-			}
-			else
-			{
-				armaEquipada = false;
-			}
+			TrocaArma();
 		}
 
 		// Ao apertar Alt (Fire2), testa se uma arma está equipada, e instancia o tiro
 		if (Input.GetButtonDown("Fire2"))
 		{
-			if (armaEquipada == true)
+			if (armaSelecionada != 0)
 			{
 
 				// Guarda a posição do Player, posiciona na variável position e prepara para instanciar o projétil em frente a arma do Player
@@ -73,18 +74,35 @@ public class PlayerController : MonoBehaviour {
 					position = new Vector3(transform.position.x + ((transform.localScale.x / 2f) - 0.6f), transform.position.y - (transform.localScale.y - 1.1f));
 				}
 
-				// Guarda uma referência ao prefab instanciado (projétil)
-				GameObject instance = Instantiate(tiro1Prefab, position, Quaternion.identity) as GameObject;
+				if (armaSelecionada == 1)
+				{
+					// Guarda uma referência ao prefab instanciado (projétil)
+					GameObject instance = Instantiate(tiro1Prefab, position, Quaternion.identity) as GameObject;
+					// Envia uma mensagem ao objeto instanciado (projétil) indicando a direção em que foi disparado
+					if (viradoDireita)
+					{
+						instance.gameObject.SendMessage("FacingR");
+					}
+					else
+					{
+						instance.gameObject.SendMessage("FacingL");
+					}
+				}
+				else if (armaSelecionada == 2)
+				{
+					// Guarda uma referência ao prefab instanciado (projétil)
+					GameObject instance = Instantiate(tiro2Prefab, position, Quaternion.identity) as GameObject;
+					// Envia uma mensagem ao objeto instanciado (projétil) indicando a direção em que foi disparado
+					if (viradoDireita)
+					{
+						instance.gameObject.SendMessage("FacingR");
+					}
+					else
+					{
+						instance.gameObject.SendMessage("FacingL");
+					}
+				}
 
-				// Envia uma mensagem ao objeto instanciado (projétil) indicando a direção em que foi disparado
-				if (viradoDireita)
-				{
-					instance.gameObject.SendMessage("FacingR");
-				}
-				else
-				{
-					instance.gameObject.SendMessage("FacingL");
-				}
 
 				// Executa o som do tiro
 				audioSrc.clip = shootSound;
@@ -113,26 +131,40 @@ public class PlayerController : MonoBehaviour {
 		transform.Translate (translationX, translationY, 0);
 		transform.Rotate (0, 0, 0);
 
-		if (translationX != 0 && tocaChao) {
-			if (armaEquipada == false)
+		if (translationX != 0 && tocaChao)
+		{
+			if (armaSelecionada == 0)
 			{
-				anim.SetTrigger("corre");	     // Se arma não está equipada chama animação corre (run)
-			} else
-			{
-				anim.SetTrigger("arma1_corre");		// Se arma está equipada chama Animação correndo com a arma (corre_arma1)
+				anim.SetTrigger("corre");        // Se arma selecionada for 0 chama animação corre (run)
 			}
-		
-		} else {
-			if (translationX == 0 && tocaChao) {
-				if (armaEquipada == false)
+			else if (armaSelecionada == 1)
+			{
+				anim.SetTrigger("arma1_corre");     // Se arma selecionada for 1 chama animação correndo com a arma 1 (corre_arma1)
+			}
+			else if (armaSelecionada == 2)
+			{
+				anim.SetTrigger("arma2_corre");     // Se arma selecionada for 2 chama animação correndo com a arma 2 (corre_arma2)
+			}
+
+		}
+		else
+		{
+			if (translationX == 0 && tocaChao)
+			{
+				if (armaSelecionada == 0)
 				{
-					anim.SetTrigger("parado");      // Se arma não está equipada chama animação parado (stand)
-				} else
+					anim.SetTrigger("parado");      // Se arma selecionada for 0 chama animação parado (stand)
+				}
+				else if (armaSelecionada == 1)
 				{
-					anim.SetTrigger("arma1_parado");    // Se arma está equipada chama Animação parado com a arma (stand_shoot)
+					anim.SetTrigger("arma1_parado");    // Se arma selecionada for 1 chama Animação parado com a arma 1 (stand_shoot)
+				}
+				else if (armaSelecionada == 2)
+				{
+					anim.SetTrigger("arma2_parado");    // Se arma selecionada for 2 chama Animação parado com a arma 2 (stand_shoot2)
 				}
 			}
-		
+
 
 
 		}
@@ -149,7 +181,37 @@ public class PlayerController : MonoBehaviour {
 
 
 	}
-	
+
+	void TrocaArma()
+	{
+		if (armaSelecionada <= 2)
+		{
+			armaSelecionada++;
+		}
+		if (armaSelecionada > 2)
+		{
+			armaSelecionada = 0;
+		}
+
+		// Altera o Sprite da Arma no HUD
+		if (armaSelecionada == 1)
+		{
+			armaUIImagem.sprite = Resources.Load<Sprite>("Sprites/arma1");
+			armaUIImagem.color = Color.white;
+		}
+		else if (armaSelecionada == 2)
+		{
+			armaUIImagem.sprite = Resources.Load<Sprite>("Sprites/arma2");
+			armaUIImagem.color = Color.white;
+		}
+		if (armaSelecionada == 0)
+		{
+			armaUIImagem.sprite = Resources.Load<Sprite>("");
+			armaUIImagem.color = Color.clear;
+		}
+
+	}
+
 
 	void Flip()
 	{
