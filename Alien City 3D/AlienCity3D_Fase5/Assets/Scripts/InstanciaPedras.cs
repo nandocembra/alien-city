@@ -19,6 +19,7 @@ public class InstanciaPedras : MonoBehaviour {
 		{
 			GameObject ped = pedras;
 			Vector3 spawnPosition = new Vector3 (Random.Range (-PosCriacao.x, PosCriacao.x),PosCriacao.y, Random.Range (-PosCriacao.z, PosCriacao.z));
+			spawnPosition = new Vector3((spawnPosition.x + 72), spawnPosition.y, spawnPosition.z);
 			Instantiate (ped, spawnPosition, Quaternion.Euler(270, 0, 0));
 			yield return new WaitForSeconds (EsperaCriacao);
 		}

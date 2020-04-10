@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\ArmadilhaScript.cs" />
     <Compile Include="Assets\Scripts\CarregaMenu.cs" />
     <Compile Include="Assets\Scripts\ConfigSom.cs" />
+    <Compile Include="Assets\Scripts\DamageController.cs" />
     <Compile Include="Assets\Scripts\DoorScript.cs" />
     <Compile Include="Assets\Scripts\InstanciaPedras.cs" />
     <Compile Include="Assets\Scripts\MenuControle.cs" />
